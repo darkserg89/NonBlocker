@@ -2,7 +2,8 @@ import time, pyautogui
 import PySimpleGUI as sg
 import multiprocessing
 from psgtray import SystemTray
-
+import os
+import sys
 
 def KeepUI():
     sg.theme('Dark')
@@ -10,10 +11,16 @@ def KeepUI():
         [sg.Text('NonBlocker is active now.\nYou can hide it, and it will continue running.\nClose it to disable it.')],
         [sg.Button('Hide')]
     ]
+    #Задается путь к файлу idea.ico, необходимо для того, что бы этот файл был найдит, после pyinstaller
+    bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+    path_to_ico = os.path.abspath(os.path.join(bundle_dir, 'idea.ico'))
+
+
     systray_menu = ['',['Hide','Show Window','Exit']]
-    #window = sg.Window('Keep-Me-Up', layout)
-    window = sg.Window('NonBlocker', icon='idea.ico').Layout(layout)
-    tray = SystemTray(systray_menu,single_click_events=False,window=window,icon='idea.ico')
+    window = sg.Window('NonBlocker', icon=path_to_ico).Layout(layout)
+    tray = SystemTray(systray_menu,single_click_events=False,window=window,icon=path_to_ico)
+    #window = sg.Window('NonBlocker').Layout(layout)
+    #tray = SystemTray(systray_menu,single_click_events=False,window=window)
     tray.show_message('System Tray','System tray icon started')
 
     p2 = multiprocessing.Process(target=dontsleep)
@@ -51,5 +58,6 @@ def dontsleep():
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     p1 = multiprocessing.Process(target=KeepUI)
     p1.start()
